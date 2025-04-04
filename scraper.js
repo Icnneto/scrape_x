@@ -50,9 +50,9 @@ async function scrapeProfile(url) {
 };
 
 // Set interval to maintain the function running without overlapping
-// setInterval(() => scrapeProfile("https://x.com/gugachacra"), 10000);
+// setInterval(() => scrapeProfile("https://x.com/elonmusk"), 10000);
 
 // Call function only one time
-scrapeProfile("https://x.com/gugachacra").then(data => {
+scrapeProfile("https://x.com/elonmusk").then(data => {
     console.log(`Captured data: ${JSON.stringify(data)}`)
 })
