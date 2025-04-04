@@ -31,7 +31,10 @@ node scraper.js
 
 ### Future Implementations
 
-- Store results in a database to monitor user statistics.
-- Implement server-side caching to compare scraped data with the latest database entry.
+- Store results in a database to monitor user statistics (MongoDB, Firebase, Supabase(SQL))
+- Implement server-side caching to compare scraped data with the latest database entry
     - If the data remains unchanged, avoid sending new records to minimize database queries
 - Use IP proxies and implement IP rotation to prevent request blocking by X
+- Create a dashboard to visualize real time data
+- Script hosting - to keep it alive 24/7
+- Implement anti-bot detection
