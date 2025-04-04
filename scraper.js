@@ -1,8 +1,15 @@
 const puppeteer = require("puppeteer");
 
+/** 
+ * Scrapes user profile data from X (formerly Twitter).
+ * Captures API responses to extract the number of followers and following count
+     
+ * @param {string} url - The URL of the user profile page
+*/
 async function scrapeProfile(url) {
-    const browser = await puppeteer.launch({ 
-        headless: false 
+
+    const browser = await puppeteer.launch({
+        headless: true
     });
 
     const page = await browser.newPage();
@@ -19,12 +26,11 @@ async function scrapeProfile(url) {
                 const followersCount = jsonResponse.data.user.result.legacy.followers_count;
                 const following = jsonResponse.data.user.result.legacy.friends_count;
 
-                console.log({ 
+                xhrResponses.push({
                     "Number of followers": followersCount,
                     "Follows:": following
-                 });
+                });
 
-                xhrResponses.push(jsonResponse);
             } catch (error) {
                 console.error("Failed to process JSON:", error);
             }
@@ -33,13 +39,20 @@ async function scrapeProfile(url) {
 
     await page.goto(url, { waitUntil: 'networkidle2' });
 
+    // Timeout to avoid browser closing before intercepting response
     setTimeout(() => {
-
-    }, "1000");
+        console.log('Waiting');
+    }, 3000);
 
     await browser.close();
+
+    return xhrResponses;
 };
 
 // Set interval to maintain the function running without overlapping
 // setInterval(() => scrapeProfile("https://x.com/gugachacra"), 10000);
-scrapeProfile("https://x.com/gugachacra");
+
+// Call function only one time
+scrapeProfile("https://x.com/gugachacra").then(data => {
+    console.log(`Captured data: ${JSON.stringify(data)}`)
+})
