@@ -1,9 +1,12 @@
 # X Profile Scraper
+This project scrapes public profile data from **X (Twitter)** using **Puppeteer** with stealth techniques and stores the data in **MongoDB** using **Mongoose**.
 
 ### Technologies Used
 
-- **JavaScript** (Node.js)
-- **Puppeteer** (Headless browser automation)
+- **JavaScript (Node.js)**
+- **Puppeteer + Stealth Plugin**
+- **MongoDB + Mongoose**
+- **dotenv** (for secure environment variables)
 
 ### Why Puppeteer?
 
@@ -13,28 +16,58 @@ X (formerly Twitter) is a Single Page Application (SPA) that heavily relies on J
 
 ### How to Run
 
-#### Prerequisites
+#### Setup Instructions
 
-Ensure you have Node.js installed.
+Clone the Repository
 
-#### Installation
-
-```bash
-npm install puppeteer
-```
-
-#### Running the Scraper
+#### Install dependencies
 
 ```bash
-node scraper.js
+npm install
 ```
+
+#### Environment Configuration
+Create a .env file at the root and add your MongoDB connection string:
+
+```bash
+DB_CONNECTION_STRING=mongodb+srv://your_username:your_password@cluster.mongodb.net/your_db_name
+```
+#### Run the Scraper
+
+```bash
+node scraperX.js
+```
+The scraper will start scraping the defined X profile periodically and push the data into your MongoDB collection.
+
+###  Features
+- **Stealth Mode**: Avoid detection by using puppeteer-extra-plugin-stealth.
+- **Custom Headers**: Uses a real browser user-agent.
+- **Random Delays**: Mimics human-like browsing behavior.
+- **XHR Interception**: Extracts data directly from UserByScreenName API.
+- **MongoDB Integration**: Stores scraped data with timestamp.
+- **Automatic Retry Logic**: Handles failures with exponential backoff.
+- **Timestamps**: Records when each data point was captured (created_at).
+
+### MongoDB Schema
+```js
+    _id: ObjectId,
+    num_followers: Number,
+    num_following: Number,
+    created_at: ISODate
+```
+Defined in: `database/model/dbSchema.js`
+
+### How It Works
+1. Launches a headless browser using Puppeteer + Stealth Plugin
+2. Sets a realistic user-agent and disables bot indicators
+3. Navigates to the profile URL
+4. Listens for XHR responses from UserByScreenName endpoint
+5. Extracts followers_count and friends_count
+6. Pushes data to MongoDB
+7. Waits before running again, increasing the delay if errors occur
 
 ### Future Implementations
 
-- Store results in a database to monitor user statistics (MongoDB, Firebase, Supabase(SQL))
-- Implement server-side caching to compare scraped data with the latest database entry
-    - If the data remains unchanged, avoid sending new records to minimize database queries
-- Use IP proxies and implement IP rotation to prevent request blocking by X
+- Use rotating proxies or headless browsers to bypass rate limits
 - Create a dashboard to visualize real time data
-- Script hosting - to keep it alive 24/7
-- Implement anti-bot detection
+- Run 24/7 via cronjob or background worker (Docker or cloud function)
