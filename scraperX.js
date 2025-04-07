@@ -1,5 +1,8 @@
-const puppeteerExtra = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+import mongoose from 'mongoose';
+import { connectDatabase } from './database/config/dbConnect.js';
+import userData from './database/model/dbSchema.js';
+import puppeteerExtra from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
 // Add the stealth plugin to avoid being detected
 puppeteerExtra.use(StealthPlugin());
@@ -30,7 +33,6 @@ async function scrapeProfile(url) {
     const customUa = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
     await page.setUserAgent(customUa);
 
-    // config viewport
     await page.setViewport({ width: 1366, height: 768 });
 
     // add human-like behavior
@@ -44,7 +46,6 @@ async function scrapeProfile(url) {
         });
     });
 
-    // create empty array to store user scraped data
     let userInfosResponse = [];
 
     page.on('response', async (response) => {
@@ -54,14 +55,12 @@ async function scrapeProfile(url) {
             try {
                 const jsonResponse = await response.json();
 
-                // find infos in the JSON structure
                 const followersCount = jsonResponse.data.user.result.legacy.followers_count;
                 const following = jsonResponse.data.user.result.legacy.friends_count;
 
                 userInfosResponse.push({
-                    "Number of followers": followersCount,
-                    "Follows:": following,
-                    "Timestamp": new Date().toISOString()
+                    "num_followers": followersCount,
+                    "num_following": following,
                 });
             } catch (error) {
                 console.error("Failed to process JSON:", error);
@@ -95,7 +94,6 @@ async function scrapeProfile(url) {
             });
         });
 
-        // Wait to ensure we capture the API response
         await randomDelay(1000, 2000);
     } catch (error) {
         console.error("Error during scraping:", error);
@@ -112,18 +110,46 @@ async function randomDelay(min, max) {
     return new Promise(resolve => setTimeout(resolve, delay));
 };
 
-// Execute the script
-let retryDelay = 5000; // Start with 5 seconds
-const maxDelay = 3 * 60 * 1000; // Maximum 3 minutes
+// init the database connection and send scraped data
+async function connectAndSendData(data) {
+    const connection = await connectDatabase();
+
+    connection.on('error', (e) => {
+        console.error(`Database connection error: ${e}`);
+    });
+
+    connection.once('open', () => {
+        console.log('Database connection established')
+    });
+
+    try {
+        if (!data || !Array.isArray(data) || data.length === 0) {
+            throw new Error('Invalid or empty data received');
+        }
+
+        const newData = { ...data[0] };
+
+        const createdData = await userData.create(newData);
+        return createdData;
+    } catch (error) {
+        console.error('Error saving to database:', error);
+        return `${error.message}`;
+    }
+}
+
+
+let retryDelay = 5000;
+const maxDelay = 3 * 60 * 1000;
 const url = 'https://x.com/elonmusk';
 
 async function scheduledScraping() {
     console.log('Starting to scrape...')
     try {
         const data = await scrapeProfile(url);
-        console.log(`Captured data: ${JSON.stringify(data)}`);
 
-        // Reset delay after successful scrape
+        const sendData = await connectAndSendData(data);
+        console.log(`Data sent to database: ${JSON.stringify(sendData)}`);
+
         retryDelay = 5000;
     } catch (error) {
         console.error("Scraping process failed:", error);
@@ -136,5 +162,4 @@ async function scheduledScraping() {
     setTimeout(scheduledScraping, retryDelay);
 }
 
-// Start the first scrape
 scheduledScraping();
