@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-    id: { type: mongoose.Schema.Types.ObjectId },
+const scrapedDataSchema = new mongoose.Schema({
+    platformAccount: { type: mongoose.Schema.Types.ObjectId, ref: 'PlatformAccount', required: true },
     num_followers: { type: Number, required: true },
     num_following: { type: Number, required: true }
 }, {
@@ -12,6 +12,6 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-const userData = mongoose.model('users', userSchema);
+const scrapedData = mongoose.model('scraped_data', scrapedDataSchema);
 
-export default userData;
+export default scrapedData;

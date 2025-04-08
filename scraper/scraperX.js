@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import { connectDatabase } from '../database/config/dbConnect.js';
-import userData from '../database/model/dbSchema.js';
 import puppeteerExtra from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+import scrapedData from '../database/model/scrapedDataSchema.js';
+import platformAccount from '../database/model/platformAccountSchema.js';
+import userData from '../database/model/userSchema.js';
 
 // Add the stealth plugin to avoid being detected
 puppeteerExtra.use(StealthPlugin());
@@ -57,6 +59,7 @@ async function scrapeProfile(url) {
 
                 const followersCount = jsonResponse.data.user.result.legacy.followers_count;
                 const following = jsonResponse.data.user.result.legacy.friends_count;
+                // pegar nome do user com jsonResponse.data.user.result.legacy.name
 
                 userInfosResponse.push({
                     "num_followers": followersCount,
@@ -129,7 +132,7 @@ async function connectAndSendData(data) {
 
         const newData = { ...data[0] };
 
-        const createdData = await userData.create(newData);
+        const createdData = await scrapedData.create(newData);
         return createdData;
     } catch (error) {
         console.error('Error saving to database:', error);
