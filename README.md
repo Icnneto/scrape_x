@@ -120,5 +120,6 @@ Defined in: `database/model/scrapedDataSchema.js`
 ### Future Implementations
 
 - Use rotating proxies to bypass rate limits
-- Create a dashboard to visualize real time data
 - Run 24/7 via cronjob or background worker (Docker, cloud function or Render)
+- Create an API (websocket) for communication between database and front-end
+- Create a dashboard to visualize real time data
