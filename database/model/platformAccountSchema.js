@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
 const platformAccountSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
     platform: { type: String, enum: ['X', 'youtube'], required: true }
 });
 
-const platformAccount = mongoose.model('PlatformAccount', platformAccountSchema);
+const platformAccountModel = mongoose.model('platform_account', platformAccountSchema);
 
-export default platformAccount;
+export default platformAccountModel;

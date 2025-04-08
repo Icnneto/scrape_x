@@ -54,14 +54,14 @@ export async function scrapeProfile(url) {
 
                 const followersCount = jsonResponse.data.user.result.legacy.followers_count;
                 const following = jsonResponse.data.user.result.legacy.friends_count;
-                const userName = jsonResponse.data.user.result.legacy.name;
+                const username = jsonResponse.data.user.result.legacy.name;
 
                 userInfosResponse.push({
-                    "username": userName,
-                    "num_followers": followersCount,
-                    "num_following": following,
+                    "username": username,
+                    "numFollowers": followersCount,
+                    "numFollowing": following,
                 });
-                
+
             } catch (error) {
                 console.error("Failed to process JSON:", error);
             };

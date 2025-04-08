@@ -1,6 +1,7 @@
 import { scrapeProfile } from "./scraper.js";
 import { connectAndSendData } from "../sendData.js";
 
+const platform = 'X';
 const url = 'https://x.com/elonmusk';
 
 let retryDelay = 5000;
@@ -11,7 +12,7 @@ async function scheduledScraping() {
     try {
         const data = await scrapeProfile(url);
 
-        const sendData = await connectAndSendData(data);
+        const sendData = await connectAndSendData(data, platform);
         console.log(`Data sent to database: ${JSON.stringify(sendData)}`);
 
         retryDelay = 5000;
