@@ -27,7 +27,7 @@ npm install
 ```
 
 #### Environment Configuration
-Create a .env file at the root and add your MongoDB connection string:
+Create a `.env` file at the root and add your MongoDB connection string:
 
 ```bash
 DB_CONNECTION_STRING=mongodb+srv://your_username:your_password@cluster.mongodb.net/your_db_name
@@ -42,6 +42,37 @@ In `scraper/x_twitter/scheduleScraper.js`, set the `url` variable to the profile
 npm run scraper
 ```
 The scraper will start scraping the defined X profile periodically and push the data into your MongoDB collection.
+
+#### Testing without MongoDB
+If you'd like to test this application in a simpler way, without the need of configuring a MongoDB database, here's how:
+
+- Access `scraper/x_twitter/scheduleScraper.js` directory;
+- Remove the function call `const sendData = await connectAndSendData(data, platform)`;
+- Add a `console.log(`Data scraped: ${JSON.stringify(data)}`)`
+
+And the code will look like this:
+
+```js
+async function scheduledScraping() {
+    console.log('Starting to scrape...')
+    try {
+        const data = await scrapeProfile(url);
+        console.log(`Data scraped: ${JSON.stringify(data)}`)
+
+        retryDelay = 5000;
+    } catch (error) {
+        console.error("Scraping process failed:", error);
+
+        // Increase delay after failure (up to maximum)
+        retryDelay = Math.min(retryDelay * 1.5, maxDelay);
+    }
+
+    // Schedule next run
+    setTimeout(scheduledScraping, retryDelay);
+}
+
+scheduledScraping();
+```
 
 ###  Features
 - **Stealth Mode**: Avoid detection by using puppeteer-extra-plugin-stealth.
