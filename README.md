@@ -32,10 +32,14 @@ Create a .env file at the root and add your MongoDB connection string:
 ```bash
 DB_CONNECTION_STRING=mongodb+srv://your_username:your_password@cluster.mongodb.net/your_db_name
 ```
+
+#### Define the User to Scrape
+In `scraper/x_twitter/scheduleScraper.js`, set the `url` variable to the profile URL of the user whose data you want to scrape
+
 #### Run the Scraper
 
 ```bash
-node scraperX.js
+npm run scraper
 ```
 The scraper will start scraping the defined X profile periodically and push the data into your MongoDB collection.
 
@@ -49,13 +53,22 @@ The scraper will start scraping the defined X profile periodically and push the 
 - **Timestamps**: Records when each data point was captured (created_at).
 
 ### MongoDB Schema
+The MongoDB schema structure is organized within a nested directory called `database`, with all schema models located in `database/model/`.
+
+The schemas are separated into individual files:
+
+- `platformAccountSchema.js`
+- `scrapedDataSchema.js`
+- `userSchema.js`
+
 ```js
     _id: ObjectId,
+    platformAccount: ObjectId,
     num_followers: Number,
     num_following: Number,
     created_at: ISODate
 ```
-Defined in: `database/model/dbSchema.js`
+Defined in: `database/model/scrapedDataSchema.js`
 
 ### How It Works
 1. Launches a headless browser using Puppeteer + Stealth Plugin
