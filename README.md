@@ -44,13 +44,19 @@ npm run scraper
 The scraper will start scraping the defined X profile periodically and push the data into your MongoDB collection.
 
 ### Testing without MongoDB
-If you'd like to test this application in a simpler way, without the need of configuring a MongoDB database, here's how:
+If you’d like to test the scraper without setting up a MongoDB database, follow these simple steps:
 
-- Access `scraper/x_twitter/scheduleScraper.js` directory;
-- Remove the function call `const sendData = await connectAndSendData(data, platform)`;
-- Add a `console.log(``Data scraped: ${JSON.stringify(data)}``)`
+- Open the `scraper/x_twitter/scheduleScraper.js` file;
+- Remove or comment out the line:
+    ```js
+    const sendData = await connectAndSendData(data, platform);
+    ```
+- Add a `console.log()` line to print the scraped data:
+    ```js
+    console.log(`Data scraped: ${JSON.stringify(data)}`);
+    ```
 
-And the code will look like this:
+Your updated function will look like this:
 
 ```js
 async function scheduledScraping() {
@@ -73,6 +79,7 @@ async function scheduledScraping() {
 
 scheduledScraping();
 ```
+This is useful for testing the scraping logic without needing a database connection.
 
 ###  Features
 - **Stealth Mode**: Avoid detection by using puppeteer-extra-plugin-stealth.
