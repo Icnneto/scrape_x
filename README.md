@@ -43,12 +43,12 @@ npm run scraper
 ```
 The scraper will start scraping the defined X profile periodically and push the data into your MongoDB collection.
 
-#### Testing without MongoDB
+### Testing without MongoDB
 If you'd like to test this application in a simpler way, without the need of configuring a MongoDB database, here's how:
 
 - Access `scraper/x_twitter/scheduleScraper.js` directory;
 - Remove the function call `const sendData = await connectAndSendData(data, platform)`;
-- Add a `console.log(`Data scraped: ${JSON.stringify(data)}`)`
+- Add a `console.log(``Data scraped: ${JSON.stringify(data)}``)`
 
 And the code will look like this:
 
