@@ -109,16 +109,16 @@ The schemas are separated into individual files:
 Defined in: `database/model/scrapedDataSchema.js`
 
 ### How It Works
-1. Launches a headless browser using Puppeteer + Stealth Plugin
-2. Sets a realistic user-agent and disables bot indicators
+1. Launches a headless browser using `Puppeteer + Stealth Plugin`
+2. Sets a realistic `user-agent` and disables bot indicators
 3. Navigates to the profile URL
-4. Listens for XHR responses from UserByScreenName endpoint
-5. Extracts followers_count and friends_count
+4. Listens for XHR responses from `UserByScreenName` endpoint
+5. Extracts `username`, `followers_count` and `friends_count`
 6. Pushes data to MongoDB
 7. Waits before running again, increasing the delay if errors occur
 
 ### Future Implementations
 
-- Use rotating proxies or headless browsers to bypass rate limits
+- Use rotating proxies to bypass rate limits
 - Create a dashboard to visualize real time data
-- Run 24/7 via cronjob or background worker (Docker or cloud function)
+- Run 24/7 via cronjob or background worker (Docker, cloud function or Render)
