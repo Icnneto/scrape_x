@@ -1,10 +1,5 @@
-import mongoose from 'mongoose';
-import { connectDatabase } from '../database/config/dbConnect.js';
 import puppeteerExtra from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
-import scrapedData from '../database/model/scrapedDataSchema.js';
-import platformAccount from '../database/model/platformAccountSchema.js';
-import userData from '../database/model/userSchema.js';
 
 // Add the stealth plugin to avoid being detected
 puppeteerExtra.use(StealthPlugin());
@@ -14,7 +9,7 @@ puppeteerExtra.use(StealthPlugin());
  * @param {string} url - The URL of the user profile page
 */
 
-async function scrapeProfile(url) {
+export async function scrapeProfile(url) {
     // launch args for puppeteer
     const launchArgs = [
         '--no-sandbox',
@@ -112,57 +107,3 @@ async function randomDelay(min, max) {
     const delay = Math.floor(Math.random() * (max - min + 1) + min);
     return new Promise(resolve => setTimeout(resolve, delay));
 };
-
-// init the database connection and send scraped data
-async function connectAndSendData(data) {
-    const connection = await connectDatabase();
-
-    connection.on('error', (e) => {
-        console.error(`Database connection error: ${e}`);
-    });
-
-    connection.once('open', () => {
-        console.log('Database connection established')
-    });
-
-    try {
-        if (!data || !Array.isArray(data) || data.length === 0) {
-            throw new Error('Invalid or empty data received');
-        }
-
-        const newData = { ...data[0] };
-
-        const createdData = await scrapedData.create(newData);
-        return createdData;
-    } catch (error) {
-        console.error('Error saving to database:', error);
-        return `${error.message}`;
-    }
-}
-
-
-let retryDelay = 5000;
-const maxDelay = 3 * 60 * 1000;
-const url = 'https://x.com/elonmusk';
-
-async function scheduledScraping() {
-    console.log('Starting to scrape...')
-    try {
-        const data = await scrapeProfile(url);
-
-        const sendData = await connectAndSendData(data);
-        console.log(`Data sent to database: ${JSON.stringify(sendData)}`);
-
-        retryDelay = 5000;
-    } catch (error) {
-        console.error("Scraping process failed:", error);
-
-        // Increase delay after failure (up to maximum)
-        retryDelay = Math.min(retryDelay * 1.5, maxDelay);
-    }
-
-    // Schedule next run
-    setTimeout(scheduledScraping, retryDelay);
-}
-
-scheduledScraping();
