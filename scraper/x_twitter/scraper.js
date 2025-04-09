@@ -76,6 +76,9 @@ export async function scrapeProfile(url) {
             timeout: 60000
         });
 
+        console.log('After page rendered');
+        await trackMemoryUsage(page);
+
         // Scroll naturally to trigger more content loading
         await page.evaluate(async () => {
             await new Promise((resolve) => {
@@ -94,6 +97,9 @@ export async function scrapeProfile(url) {
             });
         });
 
+        console.log('After scroll');
+        await trackMemoryUsage(page);
+
         await randomDelay(1000, 2000);
     } catch (error) {
         console.error("Error during scraping:", error);
@@ -109,3 +115,10 @@ async function randomDelay(min, max) {
     const delay = Math.floor(Math.random() * (max - min + 1) + min);
     return new Promise(resolve => setTimeout(resolve, delay));
 };
+
+async function trackMemoryUsage(page, label ='') {
+    const metrics = await page.metrics();
+    console.log(`-----${label}-----`)
+    console.log('JSHeapUsedSize:', (metrics.JSHeapUsedSize / 1024 / 1024).toFixed(2), 'MB');
+    console.log('JSHeapTotalSize:', (metrics.JSHeapTotalSize / 1024 / 1024).toFixed(2), 'MB');
+}
