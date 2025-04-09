@@ -123,3 +123,6 @@ Defined in: `database/model/scrapedDataSchema.js`
 - Run 24/7 via cronjob or background worker (Docker, cloud function or Render)
 - Create an API (websocket) for communication between database and front-end
 - Create a dashboard to visualize real time data
+
+### Architecture Design (not implemented yet)
+<img src="https://github.com/user-attachments/assets/9e1dc000-6d59-413c-b91f-95a02fdb1fe1" style="width:350px">
