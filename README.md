@@ -125,4 +125,14 @@ Defined in: `database/model/scrapedDataSchema.js`
 - Create a dashboard to visualize real time data
 
 ### Architecture Design (not implemented yet)
-<img src="https://github.com/user-attachments/assets/9e1dc000-6d59-413c-b91f-95a02fdb1fe1" style="width:350px">
+```bash
+[Scraper] ----> [MongoDB] <----> [API + watch()]
+(Render)                             | (Render)
+                                     |
+                                     | (WebSocket)
+                                     |
+                                     v
+----------------------------------------------
+[                Front-end                   ]
+           (Vercel or GitHub Pages)
+```
