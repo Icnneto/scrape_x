@@ -4,7 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "scraper": "node ./scraper/x_twitter/scheduleScraper.js"
+    "scraper": "node ./scraper/scheduleScraper.js"
   },
   "keywords": [],
   "author": "",

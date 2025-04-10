@@ -1,44 +1,56 @@
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 import { fetchAllData } from "../database/fetchAllData.js";
+import { startWatching } from "./watch.js";
 
 let PORT = process.env.PORT || 3000;
+
+const clients = new Set();
 
 const wss = new WebSocketServer({
     port: PORT
 });
 
-/*
+wss.on('connection', async (ws) => {
+    console.log('Client has connected');
+    clients.add(ws);
 
- * quando alguém se conectar, mandar todas os dados do DB de uma vez para popular o gráfico no front
-    - wss.on('connection', {função que será disparada toda vez que uma conexão acontecer})
- * durante a conexão, toda vez que o watch() resgatar uma inserção no db, enviar para o front (wss.broadcast???)
- 
-**/
-
-async function onConnection(ws, req) {
-
-    /*
-        Client connects
-        Fetch all data from scraped_data schema
-        Send to front-end
-        Populate dashboard
-    **/
-
-    ws.send('Fetching data...');
+    ws.send('Connection established with WebSocket server');
 
     try {
         const fetchedData = await fetchAllData();
         ws.send(JSON.stringify(fetchedData));
     } catch (error) {
-        console.error(`Error fetching data from MongDB: ${error}`);
-        ws.send(`Error fetching data from MongDB: ${error}`);
-    };
-}
+        console.error('Error fetching data from MongoDB:', error);
+        ws.send(`Error fetching data from MongoDB: ${error}`);
+    }
 
-wss.on('connection', onConnection);
+    ws.on('close', () => {
+        clients.delete(ws);
+        console.log('Client has disconnected');
+    });
 
-wss.on('close', () => {
-    console.log('Client has disconnected');
+    ws.on('error', (error) => {
+        console.error('Error on websocket:', error);
+    });
 });
+
+export async function broadcastToClients(data) {
+
+    const serializedData = {
+        _id: data._id.toString(), 
+        platformAccount: data.platformAccount.toString(),
+        num_followers: data.num_followers,
+        num_following: data.num_following,
+        created_at: data.created_at.toISOString(),
+    };
+
+    clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(serializedData));
+        };
+    });
+};
+
+startWatching();
 
 console.log(`WebSocket server running ws://localhost:${PORT}`);

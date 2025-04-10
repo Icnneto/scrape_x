@@ -34,7 +34,7 @@ DB_CONNECTION_STRING=mongodb+srv://your_username:your_password@cluster.mongodb.n
 ```
 
 #### Define the User to Scrape
-In `scraper/x_twitter/scheduleScraper.js`, set the `url` variable to the profile URL of the user whose data you want to scrape
+In `scraper/scheduleScraper.js`, set the `url` variable to the profile URL of the user whose data you want to scrape
 
 #### Run the Scraper
 
@@ -46,7 +46,7 @@ The scraper will start scraping the defined X profile periodically and push the 
 ### Testing without MongoDB
 If you’d like to test the scraper without setting up a MongoDB database, follow these simple steps:
 
-- Open the `scraper/x_twitter/scheduleScraper.js` file;
+- Open the `scraper/scheduleScraper.js` file;
 - Remove or comment out the line:
     ```js
     const sendData = await connectAndSendData(data, platform);
