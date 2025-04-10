@@ -1,5 +1,5 @@
 import { scrapeProfile } from "./scraper.js";
-import { connectAndSendData } from "../sendData.js";
+import { connectAndSendData } from "./sendData.js";
 
 const platform = 'X';
 const url = 'https://x.com/elonmusk';
