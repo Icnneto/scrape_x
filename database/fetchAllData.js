@@ -1,6 +1,7 @@
 import { connectDatabase } from "./config/dbConnect.js";
 import scrapedData from "./model/scrapedDataSchema.js";
 
+// implementation: use populate to retrieve the user (profile we are scraping) to send a complete data for front-end processing
 export async function fetchAllData() {
     const connection = await connectDatabase();
 
