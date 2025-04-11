@@ -4,13 +4,14 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "scraper": "node ./scraper/scheduleScraper.js"
+    "start": "concurrently \"node ./scraper/scheduleScraper\" \"node ./api/websocket\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "mongodb": "^6.15.0",
     "mongoose": "^8.13.2",
