@@ -7,6 +7,7 @@ This project scrapes public profile data from **X (Twitter)** using **Puppeteer*
 - **Puppeteer + Stealth Plugin**
 - **MongoDB + Mongoose**
 - **dotenv** (for secure environment variables)
+- **concurrently**
 
 ### Why Puppeteer?
 
@@ -39,7 +40,7 @@ In `scraper/scheduleScraper.js`, set the `url` variable to the profile URL of th
 #### Run the Scraper
 
 ```bash
-npm run scraper
+npm run start
 ```
 The scraper will start scraping the defined X profile periodically and push the data into your MongoDB collection.
 
