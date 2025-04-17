@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { broadcastToClients } from "./websocket.js";
+import { broadcastToClients } from "./serverSentEvents.js";
 import { connectDatabase } from "../database/config/dbConnect.js";
 
 export async function startWatching() {
