@@ -7,7 +7,7 @@ export async function connectDatabase() {
             process.env.DB_CONNECTION_STRING
         );
 
-        console.log('Connected');
+        console.log('Connected to database!');
         return mongoose.connection;
     } catch (error) {
         console.error('atabase connection error: ', error.message);

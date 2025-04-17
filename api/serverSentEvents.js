@@ -7,32 +7,26 @@ app.use(express.json());
 
 let PORT = process.env.PORT || 3000;
 
-const clients = new Set();
+// Map<res, LastEventId>
+const clients = new Map();
+let eventIdCounter = 1;
 
-app.get('/events', async (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+const eventHistory = [];
+const MAX_HISTORY = 100;
 
-    // Send an initial message
-    res.write(`data: Connected to server\n\n`);
+function formatSSEEvent(id, data, eventType = null){
+    let event = `id: ${id}\n`;
+    if (eventType) event += `event: ${eventType}\n`;
+    event += `data: ${JSON.stringify(data)}\n\n`;
+    return event;
+};
 
-    clients.add(res);
-
-    try {
-        const fetchedData = await fetchAllData();
-        res.write(`data: ${JSON.stringify(fetchedData)}\n\n`);
-    } catch (error) {
-        console.error('Error fetching data from MongoDB:', error);
-        res.write(`data: Error fetching data from MongoDB: ${error}\n\n`);
-    };
-
-    // When client closes connection, stop sending events
-    req.on('close', () => {
-        clearInterval(intervalId);
-        res.end();
-    });
-});
+function storeEvent(event) {
+    eventHistory.push(event);
+    if (eventHistory.length > MAX_HISTORY) {
+        eventHistory.shift();
+    }
+};
 
 export async function broadcastToClients(data) {
 
@@ -44,17 +38,52 @@ export async function broadcastToClients(data) {
         created_at: data.created_at.toISOString(),
     };
 
-    const message = `data: ${JSON.stringify(serializedData)}\n\n`;
+    const id = eventIdCounter++;
+    const message = formatSSEEvent(id, serializedData);
 
-    clients.forEach((clientRes) => {
+    storeEvent({ id, message });
+
+    clients.forEach((_, clientRes) => {
         try {
             clientRes.write(message);
         } catch (error) {
-            console.error('Erro ao enviar dados para um cliente SSE:', error);
-            clients.delete(clientRes); // Remove cliente com erro
+            console.error('Error sending data to a SSE client:', error);
+            clients.delete(clientRes);
         }
     });
 };
+
+app.get('/events', async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const lastEventId = parseInt(req.headers['last-event-id'], 10);
+    clients.set(res, lastEventId || null);
+
+    if (!isNaN(lastEventId)){
+        const missedEvents = eventHistory.filter(e => e.id > lastEventId);
+        missedEvents.forEach(e => res.write(e.message));
+    };
+
+    res.write(`data: Connected to server\n\n`);
+
+    try {
+        const fetchedData = await fetchAllData();
+        const initEvent = formatSSEEvent(eventIdCounter++, fetchedData);
+        storeEvent({ id: eventIdCounter - 1, message: initEvent })
+        res.write(initEvent);
+    } catch (error) {
+        console.error('Error fetching data from MongoDB:', error);
+        res.write(formatSSEEvent(eventIdCounter++, { error: 'Error fetching data from MongoDB' }));
+    };
+
+    // When client closes connection, stop sending events
+    req.on('close', () => {
+        clients.delete(res);
+        res.end();
+    });
+});
 
 startWatching();
 
