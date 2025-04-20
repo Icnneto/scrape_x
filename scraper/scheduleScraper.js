@@ -22,9 +22,6 @@ async function scheduledScraping() {
         // Increase delay after failure (up to maximum)
         retryDelay = Math.min(retryDelay * 1.5, maxDelay);
     }
-
-    // Schedule next run
-    setTimeout(scheduledScraping, retryDelay);
-}
+};
 
 scheduledScraping();
