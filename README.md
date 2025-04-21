@@ -40,7 +40,7 @@ In `scraper/scheduleScraper.js`, set the `url` variable to the profile URL of th
 #### Run the Scraper
 
 ```bash
-npm run start
+npm run dev
 ```
 The scraper will start scraping the defined X profile periodically and push the data into your MongoDB collection.
 
@@ -66,21 +66,20 @@ async function scheduledScraping() {
         const data = await scrapeProfile(url);
         console.log(`Data scraped: ${JSON.stringify(data)}`)
 
-        retryDelay = 5000;
     } catch (error) {
         console.error("Scraping process failed:", error);
 
-        // Increase delay after failure (up to maximum)
-        retryDelay = Math.min(retryDelay * 1.5, maxDelay);
     }
 
-    // Schedule next run
-    setTimeout(scheduledScraping, retryDelay);
-}
+};
 
 scheduledScraping();
 ```
 This is useful for testing the scraping logic without needing a database connection.
+
+**Useful tip**: If you want to run it in a loop for testing purposes, simply add a setTimeout at the end of the function with a fixed interval.
+
+*The deployed version on Render uses a cron job to control the scraping schedule.*
 
 ###  Features
 - **Stealth Mode**: Avoid detection by using puppeteer-extra-plugin-stealth.
@@ -88,7 +87,6 @@ This is useful for testing the scraping logic without needing a database connect
 - **Random Delays**: Mimics human-like browsing behavior.
 - **XHR Interception**: Extracts data directly from UserByScreenName API.
 - **MongoDB Integration**: Stores scraped data with timestamp.
-- **Automatic Retry Logic**: Handles failures with exponential backoff.
 - **Timestamps**: Records when each data point was captured (created_at).
 
 ### MongoDB Schema
@@ -116,13 +114,12 @@ Defined in: `database/model/scrapedDataSchema.js`
 4. Listens for XHR responses from `UserByScreenName` endpoint
 5. Extracts `username`, `followers_count` and `friends_count`
 6. Pushes data to MongoDB
-7. Waits before running again, increasing the delay if errors occur
+7. Waits before running again
 
 ### Future Implementations
 
 - Use rotating proxies to bypass rate limits
-- Run 24/7 via cronjob or background worker (Docker, cloud function or Render)
-- Create an API (websocket) for communication between database and front-end
+- Run the API 24/7 on Render, and trigger the scraping function periodically using a schedule (like a cron job or internal timer)
 - Create a dashboard to visualize real time data
 
 ### Architecture Design (not implemented yet)
