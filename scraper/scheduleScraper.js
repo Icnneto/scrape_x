@@ -4,7 +4,7 @@ import { connectAndSendData } from "./sendData.js";
 const platform = 'X';
 const url = 'https://x.com/elonmusk';
 
-async function scheduledScraping() {
+export async function scheduledScraping() {
     console.log('Starting to scrape...')
     try {
         const data = await scrapeProfile(url);
@@ -15,4 +15,4 @@ async function scheduledScraping() {
     }
 };
 
-scheduledScraping();
+// scheduledScraping();

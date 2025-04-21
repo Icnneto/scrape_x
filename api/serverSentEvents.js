@@ -1,6 +1,7 @@
 import express from 'express';
 import { fetchAllData } from "../database/fetchAllData.js";
 import { startWatching } from './watch.js';
+import { scheduledScraping } from '../scraper/scheduleScraper.js';
 
 const app = express();
 app.use(express.json());
@@ -83,6 +84,17 @@ app.get('/events', async (req, res) => {
         clients.delete(res);
         res.end();
     });
+});
+
+// Function to be called hourly by cron-job.org (render free plan does not support cron jobs)
+app.get('/execute-scraper', async (req, res) => {
+    try {
+        await scheduledScraping();
+        res.status(200).send('Scraper executed with success')
+    } catch (error) {
+        console.error('Error executing scraper:', error);
+        res.status(500).send('Error executing scraper')
+    }
 });
 
 startWatching();
