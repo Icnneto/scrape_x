@@ -1,3 +1,4 @@
+import puppeteer from 'puppeteer';
 import puppeteerExtra from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
@@ -21,7 +22,8 @@ export async function scrapeProfile(url) {
     // launch browser with Stealth plugin
     const browser = await puppeteerExtra.launch({
         headless: true,
-        args: launchArgs
+        args: launchArgs,
+        executablePath: puppeteer.executablePath()
     });
 
     const page = await browser.newPage();
