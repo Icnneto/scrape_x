@@ -72,8 +72,7 @@ export async function scrapeProfile(url) {
 
     page.on('response', async (response) => {
         const responseUrl = response.url();
-        console.log('Response URL:', responseUrl);
-
+        
         if (responseUrl.includes('UserByScreenName')) {
             try {
                 const jsonResponse = await response.json();
