@@ -88,9 +88,12 @@ app.get('/events', async (req, res) => {
 
 // Function to be called hourly by cron-job.org (render free plan does not support cron jobs)
 app.get('/execute-scraper', async (req, res) => {
+    // send a response to avoid cron-job timeout fail
+    res.status(200).send('Scraper started')
+
     try {
         await scheduledScraping();
-        res.status(200).send('Scraper executed with success')
+        console.log('Scraper executed with success');
     } catch (error) {
         console.error('Error executing scraper:', error);
         res.status(500).send('Error executing scraper')
