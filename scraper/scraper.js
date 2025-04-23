@@ -104,12 +104,10 @@ export async function scrapeProfile(url) {
         console.log('After initial page loaded');
         await trackMemoryUsage(page);
 
-        await randomDelay(500, 1000);
-
         console.log('Reloading page to trigger network request');
         await page.reload({ waitUntil: 'networkidle2' });
 
-        await randomDelay(1000, 2000);
+        await randomDelay(500, 1000);
         await trackMemoryUsage(page);
 
     } catch (error) {
