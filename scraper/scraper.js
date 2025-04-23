@@ -94,36 +94,24 @@ export async function scrapeProfile(url) {
     });
 
     try {
-        await randomDelay(1000, 2500);
+        await randomDelay(1000, 2000);
 
         await page.goto(url, {
             waitUntil: 'networkidle2',
             timeout: 60000
         });
 
-        console.log('After page rendered');
+        console.log('After initial page loaded');
         await trackMemoryUsage(page);
 
-        // Scroll naturally to trigger more content loading
-        await page.evaluate(async () => {
-            await new Promise((resolve) => {
-                let totalHeight = 0;
-                const distance = 100;
-                const timer = setInterval(() => {
-                    const scrollHeight = document.body.scrollHeight;
-                    window.scrollBy(0, distance);
-                    totalHeight += distance;
+        await randomDelay(500, 1000);
 
-                    if (totalHeight >= scrollHeight - window.innerHeight) {
-                        clearInterval(timer);
-                        resolve();
-                    }
-                }, 100);
-            });
-        });
+        console.log('Reloading page to trigger network request');
+        await page.reload({ waitUntil: 'networkidle2' });
 
-        console.log('After scroll');
+        await randomDelay(1000, 2000);
         await trackMemoryUsage(page);
+
     } catch (error) {
         console.error("Error during scraping:", error);
     } finally {
