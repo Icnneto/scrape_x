@@ -72,6 +72,7 @@ export async function scrapeProfile(url) {
 
     page.on('response', async (response) => {
         const responseUrl = response.url();
+        console.log('Response URL:', responseUrl);
 
         if (responseUrl.includes('UserByScreenName')) {
             try {
@@ -124,6 +125,8 @@ export async function scrapeProfile(url) {
 
         console.log('After scroll');
         await trackMemoryUsage(page);
+
+        await randomDelay(1000, 2000);
     } catch (error) {
         console.error("Error during scraping:", error);
     } finally {
