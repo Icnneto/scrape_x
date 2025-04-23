@@ -2,7 +2,6 @@ import puppeteer from 'puppeteer';
 import puppeteerExtra from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
-// Add the stealth plugin to avoid being detected
 puppeteerExtra.use(StealthPlugin());
 
 /**
@@ -43,6 +42,30 @@ export async function scrapeProfile(url) {
         Object.defineProperty(navigator, 'languages', {
             get: () => ['en-US', 'en']
         });
+    });
+
+    // block images and fonts to optimize scraper
+    await page.setRequestInterception(true);
+    page.on('request', interceptedRequest => {
+        const url = interceptedRequest.url();
+        if (
+            url.endsWith('.png') ||
+            url.endsWith('.jpg') ||
+            url.endsWith('.jpeg') ||
+            url.endsWith('.svg') ||
+            url.endsWith('.gif') ||
+            url.endsWith('.webp') ||
+            url.endsWith('.woff') ||
+            url.endsWith('.woff2') ||
+            url.endsWith('.ttf') ||
+            url.endsWith('.otf') ||
+            url.includes('google-analytics') ||
+            url.includes('doubleclick.net')    
+        ) {
+            interceptedRequest.abort();
+        } else {
+            interceptedRequest.continue();
+        };
     });
 
     let userInfosResponse = [];
@@ -101,8 +124,6 @@ export async function scrapeProfile(url) {
 
         console.log('After scroll');
         await trackMemoryUsage(page);
-
-        await randomDelay(1000, 2000);
     } catch (error) {
         console.error("Error during scraping:", error);
     } finally {
@@ -118,7 +139,7 @@ async function randomDelay(min, max) {
     return new Promise(resolve => setTimeout(resolve, delay));
 };
 
-async function trackMemoryUsage(page, label ='') {
+async function trackMemoryUsage(page, label = '') {
     const metrics = await page.metrics();
     console.log(`-----${label}-----`)
     console.log('JSHeapUsedSize:', (metrics.JSHeapUsedSize / 1024 / 1024).toFixed(2), 'MB');
